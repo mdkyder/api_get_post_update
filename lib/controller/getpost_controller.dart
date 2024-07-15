@@ -1,8 +1,7 @@
-
-
 import 'dart:convert';
 
 import 'package:fetchdata/model/get_post_model.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,6 +14,9 @@ class GetPostController extends GetxController {
     getPostData(); // Fetch data on initialization
   }
 
+
+  TextEditingController titleTextEditingController = TextEditingController();
+   TextEditingController contentTextEditingController = TextEditingController();
   void getPostData() async {
     Uri uri = Uri.parse("https://jsonplaceholder.org/posts");
 
@@ -23,7 +25,7 @@ class GetPostController extends GetxController {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body) as List;
         List<GetPostModel> posts =
-        jsonData.map((json) => GetPostModel.fromJson(json)).toList();
+            jsonData.map((json) => GetPostModel.fromJson(json)).toList();
         getPostModel.value = posts;
       } else {
         print('Request failed with status :${response.statusCode}');
@@ -33,27 +35,28 @@ class GetPostController extends GetxController {
     }
   }
 
-
-
   //post data from server
 
-  void createPost(String title, String body) async {
+  cler(){
+    titleTextEditingController.clear();
+    contentTextEditingController.clear();
+  }
+
+  void createPost(Map body) async {
     Uri uri = Uri.parse("https://jsonplaceholder.org/posts");
 
     try {
       final response = await http.post(
         uri,
-        body: jsonEncode({
-          'title': title,
-          'body': body,
-          'userId': 1, // Assuming a userId is required
-        }),
+        body: jsonEncode(body),
         headers: {
           "Content-Type": "application/json",
         },
       );
 
       if (response.statusCode == 201) {
+        print("response.body${response.body}");
+        cler();
         print('Post created successfully');
         // Optionally fetch updated data after creating post
         getPostData();
@@ -64,44 +67,86 @@ class GetPostController extends GetxController {
       // print('Error creating post: $e');
     }
   }
+  void updateDataPost(String postId,Map body) async {
+    Uri uri = Uri.parse("https://jsonplaceholder.org/posts/$postId");
+
+    try {
+      final response = await http.patch(
+        uri,
+        body: jsonEncode(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Post updated successfully');
+        print("response.body${response.body}");
+        // Optionally fetch updated data after updating post
+        // getPostData();
+      } else {
+        print('Failed to update post. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error updating post: $e');
+    }
+  }
+  void updateDataPut(String postId,Map body) async {
+    Uri uri = Uri.parse("https://jsonplaceholder.org/posts/$postId");
+
+    try {
+      final response = await http.put(
+        uri,
+        body: jsonEncode(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Post updated successfully');
+        print("response.body${response.body}");
+        // Optionally fetch updated data after updating post
+        getPostData();
+      } else {
+        print('Failed to update post. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error updating post: $e');
+    }
+  }
+
+
+  void updateDataDeleted(postId) async {
+    Uri uri = Uri.parse("https://jsonplaceholder.org/posts/$postId");
+
+    try {
+      final response = await http.delete(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Post delete successfully');
+        print("response.body${response.body}");
+        // Optionally fetch updated data after updating post
+        getPostData();
+      } else {
+        print('Failed to update post. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error updating post: $e');
+    }
+  }
+
+
+
+
 }
-
-
-
-
 
 //patch /Update data from server
-
-
-void updatePost(int postId, String title, String body) async {
-  Uri uri = Uri.parse("https://jsonplaceholder.org/posts/$postId");
-
-  try {
-    final response = await http.patch(
-      uri,
-      body: jsonEncode({
-        'title': title,
-        'body': body,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      print('Post updated successfully');
-      // Optionally fetch updated data after updating post
-      // getPostData();
-    } else {
-      print('Failed to update post. Status code: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error updating post: $e');
-  }
-}
-
-
-
 
 
 // import 'dart:convert';
